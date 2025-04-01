@@ -154,15 +154,18 @@ def home():
 @app.route('/upload', methods=['POST'])
 def upload_log():
     global log_data, current_index, priority_queue, visited_set, reject_set
-
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
-
     file = request.files['file']
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
+    if not file.filename.endswith('.log'):
+        return jsonify({"error": "Invalid file type. Please upload a .log file"}), 400
+    try:
+        file_content = file.read().decode('utf-8')
+    except UnicodeDecodeError:
+        return jsonify({"error": "Failed to decode file. Ensure it is a valid text-based log file"}), 400
 
-    file_content = file.read().decode('utf-8')
     log_data = parse_log(file_content)
     current_index = -1
     priority_queue.clear()
