@@ -1,0 +1,12 @@
+bot_path_frontend/node_modules/
+bot_path_frontend/build/
+bot_path_frontend/.env
+bot_path_backend/__pycache__/
+bot_path_backend/*.pyc
+bot_path_backend/.env
+*.log
+.DS_Store
+Thumbs.db
+node_modules/
+package-lock.json
+package.json
