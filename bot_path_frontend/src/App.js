@@ -3,7 +3,7 @@ import BotPathAnalyzer from "./BotPathAnalyzer";
 
 const App = () => (
     <div>
-      <h1>Bot Path Analyzer</h1>
+      <h1 style={{ textAlign: "center" }}>Bot Path Analyzer</h1>
       <BotPathAnalyzer />
     </div>
   );
