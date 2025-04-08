@@ -208,6 +208,21 @@ def prev_step():
         return jsonify({"error": "No previous steps"}), 400
 
     current_index -= 1
+    priority_queue.clear()
+    visited_set.clear()
+    reject_set.clear()
+
+    for i in range(current_index + 1):
+        entry = log_data[i]
+        if entry["event"] == "added_node":
+            heapq.heappush(priority_queue, (entry["F-Score"], entry["G-cost"], entry["H-cost"], entry["coordinate"]))
+        elif entry["event"] == "chosen_node":
+            if priority_queue:
+                f, g, h, node = heapq.heappop(priority_queue)
+                visited_set.add((node, g, h, f))
+        elif entry["event"] == "rejected":
+            reject_set.add((entry["coordinate"], entry["reason"]))
+
     return jsonify(get_current_state())
 
 @app.route('/reset', methods=['GET'])
