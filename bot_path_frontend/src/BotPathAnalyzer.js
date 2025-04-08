@@ -63,8 +63,190 @@ function App() {
     }
   };
 
+  const renderStepVisualization = (stepData) => {
+    if (!stepData || !stepData.entry) return null;
+
+    const { entry, priority_queue, visited_set, reject_set } = stepData;
+
+    const renderQueueNode = (node, index) => {
+      const [f, g, h, coord] = node;
+      return (
+        <div
+          key={index}
+          style={{
+            border: "1px solid #333",
+            padding: "0.5rem",
+            marginRight: "0.5rem",
+            borderRadius: "8px",
+            backgroundColor: "#e0f7fa",
+            textAlign: "center",
+            minWidth: "120px",
+          }}
+        >
+          <div style={{ fontWeight: "bold" }}>{coord}</div>
+          <div style={{ fontSize: "0.8rem" }}>g-cost: {g} , h-cost: {h} , f-score: {f}</div>
+        </div>
+      );
+    };
+
+    const renderStackNode = (node, index, type) => {
+      if (type === "visited") {
+        const [coord, g, h, f] = node;
+        return (
+          <div
+            key={index}
+            style={{
+              border: "1px solid #333",
+              padding: "0.5rem",
+              borderRadius: "8px",
+              marginBottom: "0.5rem",
+              backgroundColor: "#dcedc8",
+              textAlign: "center",
+              minWidth: "120px",
+            }}
+          >
+            <div style={{ fontWeight: "bold" }}>{coord}</div>
+            <div style={{ fontSize: "0.8rem" }}>g-cost: {g} , h-cost: {h} , f-score: {f}</div>
+          </div>
+        );
+      } else if (type === "reject") {
+        const [coord, reason] = node;
+        return (
+          <div
+            key={index}
+            style={{
+              border: "1px solid #b71c1c",
+              padding: "0.5rem",
+              borderRadius: "8px",
+              marginBottom: "0.5rem",
+              backgroundColor: "#ffcdd2",
+              textAlign: "center",
+              minWidth: "120px",
+            }}
+          >
+            <div style={{ fontWeight: "bold" }}>{coord}</div>
+            <div style={{ fontSize: "0.8rem" }}>🚫 {reason}</div>
+          </div>
+        );
+      }
+      return null;
+    };
+
+    const renderAddedNode = () => {
+      if (entry.event === "added_node" && entry.coordinate) {
+        return (
+          <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+            <svg width="120" height="80">
+              <circle cx="60" cy="40" r="30" fill="#4caf50" />
+              <text
+                x="60"
+                y="45"
+                textAnchor="middle"
+                fill="#fff"
+                fontSize="12"
+                dominantBaseline="middle"
+              >
+                {entry.coordinate}
+              </text>
+            </svg>
+            <p style={{ fontSize: "0.9rem" }}>Added Node</p>
+          </div>
+        );
+      }
+      return null;
+    };
+       
+
+    const renderSrcDstGraph = () => {
+      if (entry.event === "path_calculation_started") {
+        return (
+          <svg width="300" height="120" style={{ marginTop: "1rem" }}>
+            <circle cx="60" cy="60" r="25" fill="#4caf50" />
+            <text x="60" y="65" fill="#fff" textAnchor="middle" fontSize="12">
+              Src
+            </text>
+            <text x="10" y="105" fontSize="10">
+              {entry.source}
+            </text>
+
+            <circle cx="240" cy="60" r="25" fill="#f44336" />
+            <text x="240" y="65" fill="#fff" textAnchor="middle" fontSize="12">
+              Dst
+            </text>
+            <text x="190" y="105" fontSize="10">
+              {entry.destination}
+            </text>
+
+            <line
+              x1="85"
+              y1="60"
+              x2="215"
+              y2="60"
+              stroke="#000"
+              strokeWidth="2"
+              markerEnd="url(#arrowhead)"
+            />
+
+            <defs>
+              <marker
+                id="arrowhead"
+                markerWidth="10"
+                markerHeight="7"
+                refX="10"
+                refY="3.5"
+                orient="auto"
+              >
+                <polygon points="0 0, 10 3.5, 0 7" fill="#000" />
+              </marker>
+            </defs>
+          </svg>
+        );
+      }
+      return null;
+    };
+
+    return (
+      <div style={{ marginTop: "2rem" }}>
+        {renderAddedNode()}
+        {renderSrcDstGraph()}
+
+        <div style={{ marginTop: "2rem" }}>
+          <h4>Priority Queue</h4>
+          <div style={{ display: "flex", flexWrap: "wrap" }}>
+            {priority_queue.length > 0 ? (
+              priority_queue.map(renderQueueNode)
+            ) : (
+              <div style={{ fontStyle: "italic", color: "#666" }}>
+                (Queue is empty)
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div style={{ marginTop: "2rem", display: "flex", gap: "2rem" }}>
+          <div>
+            <h4>Visited Set</h4>
+            <div>
+              {visited_set.map((node, i) =>
+                renderStackNode(node, i, "visited")
+              )}
+            </div>
+          </div>
+          <div>
+            <h4>Reject Set</h4>
+            <div>
+              {reject_set.map((node, i) =>
+                renderStackNode(node, i, "reject")
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div style={{ padding: "2rem", maxWidth: "600px" }}>
+    <div style={{ padding: "2rem", maxWidth: "700px", margin: "0 auto" }}>
       <h2>Upload .log File</h2>
       <form onSubmit={handleUpload}>
         <input type="file" accept=".log" onChange={handleFileChange} />
@@ -104,7 +286,7 @@ function App() {
 
       {uploadMessage && <p style={{ marginTop: "1rem" }}>{uploadMessage}</p>}
 
-      {uploadMessage && uploadMessage.includes("successfully") && (
+      {uploadMessage.includes("successfully") && (
         <div style={{ marginTop: "2rem" }}>
           <h3>Step Navigation</h3>
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
@@ -117,19 +299,23 @@ function App() {
       )}
 
       {stepData && (
-        <div style={{ marginTop: "2rem" }}>
-          <h4>Step Info:</h4>
-          <pre
-            style={{
-              background: "#f0f0f0",
-              padding: "1rem",
-              borderRadius: "5px",
-              overflowX: "auto",
-            }}
-          >
-            {JSON.stringify(stepData, null, 2)}
-          </pre>
-        </div>
+        <>
+          <div style={{ marginTop: "2rem" }}>
+            <h4>Step Info (Raw):</h4>
+            <pre
+              style={{
+                background: "#f0f0f0",
+                padding: "1rem",
+                borderRadius: "5px",
+                overflowX: "auto",
+              }}
+            >
+              {JSON.stringify(stepData, null, 2)}
+            </pre>
+          </div>
+
+          {renderStepVisualization(stepData)}
+        </>
       )}
     </div>
   );
