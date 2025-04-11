@@ -29,14 +29,19 @@ def parse_log(file_content):
                 })
 
         elif "#added_node" in line:
-            match = re.search(r"Coor = (\{[-\d]+,[-\d]+\}),.*?GCost = (\d+), HCost = (\d+), FScore = (\d+)", line)
-            if match:
+            match = re.search(
+                r"Coor = (\{[-\d]+,[-\d]+\}), FromCoor = (\{[-\d]+,[-\d]+\}), .*?MovingStatus = (\w+), .*?BDir = (\w+), .*?PhyBDir = (\w+), RDir = (\w+)", 
+                line
+            )
+            cost_match = re.search(r"GCost = (\d+), HCost = (\d+), FScore = (\d+)", line)
+            if match and cost_match:
+                full_node = f"{{{match.group(1)}, {match.group(2)}, {match.group(3)}, butler_moving, {match.group(4)}, {match.group(5)}, {match.group(6)}}}"
                 log_entries.append({
                     "event": "added_node",
-                    "coordinate": match.group(1),
-                    "G-cost": int(match.group(2)),
-                    "H-cost": int(match.group(3)),
-                    "F-Score": int(match.group(4))
+                    "coordinate": full_node,
+                    "G-cost": int(cost_match.group(1)),
+                    "H-cost": int(cost_match.group(2)),
+                    "F-Score": int(cost_match.group(3))
                 })
 
         elif "#chosen_node" in line:
