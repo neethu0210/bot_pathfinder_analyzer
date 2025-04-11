@@ -134,81 +134,358 @@ function App() {
 
     const renderAddedNode = () => {
       if (entry.event === "added_node" && entry.coordinate) {
+        const nodeStr = entry.coordinate.toString();
         return (
-          <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-            <svg width="120" height="80">
-              <circle cx="60" cy="40" r="30" fill="#4caf50" />
-              <text
-                x="60"
-                y="45"
-                textAnchor="middle"
-                fill="#fff"
-                fontSize="12"
-                dominantBaseline="middle"
-              >
-                {entry.coordinate}
-              </text>
+          <div style={{ marginTop: "2rem", textAlign: "center" }}>
+            <h4>Added Node</h4>
+            <svg width="100%" height="150" viewBox="0 0 400 150">
+              <g>
+                <circle cx={200} cy={50} r="30" fill="#4caf50" />
+                <text
+                  x={200}
+                  y={55}
+                  textAnchor="middle"
+                  fill="#fff"
+                  fontSize="12"
+                  fontWeight="bold"
+                >
+                  Added
+                </text>
+                <text
+                  x={200}
+                  y={110}
+                  textAnchor="middle"
+                  fontSize="14"
+                  fill="#333"
+                  fontWeight="500"
+                >
+                  {nodeStr}
+                </text>
+              </g>
             </svg>
-            <p style={{ fontSize: "0.9rem" }}>Added Node</p>
           </div>
         );
       }
       return null;
-    };
+    };          
        
 
     const renderSrcDstGraph = () => {
       if (entry.event === "path_calculation_started") {
         return (
-          <svg width="300" height="120" style={{ marginTop: "1rem" }}>
-            <circle cx="60" cy="60" r="25" fill="#4caf50" />
-            <text x="60" y="65" fill="#fff" textAnchor="middle" fontSize="12">
-              Src
-            </text>
-            <text x="10" y="105" fontSize="10">
-              {entry.source}
-            </text>
-
-            <circle cx="240" cy="60" r="25" fill="#f44336" />
-            <text x="240" y="65" fill="#fff" textAnchor="middle" fontSize="12">
-              Dst
-            </text>
-            <text x="190" y="105" fontSize="10">
-              {entry.destination}
-            </text>
-
-            <line
-              x1="85"
-              y1="60"
-              x2="215"
-              y2="60"
-              stroke="#000"
-              strokeWidth="2"
-              markerEnd="url(#arrowhead)"
-            />
-
-            <defs>
-              <marker
-                id="arrowhead"
-                markerWidth="10"
-                markerHeight="7"
-                refX="10"
-                refY="3.5"
-                orient="auto"
+          <div style={{ marginTop: "2rem", textAlign: "center" }}>
+            <h4>Source to Destination</h4>
+            <svg width="100%" height="180" viewBox="0 0 400 180">
+              <defs>
+                <marker
+                  id="arrowhead"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="10"
+                  refY="3.5"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#000" />
+                </marker>
+              </defs>
+              <circle cx="100" cy="60" r="30" fill="#4caf50" />
+              <text
+                x="100"
+                y="65"
+                textAnchor="middle"
+                fill="#fff"
+                fontSize="12"
+                fontWeight="bold"
               >
-                <polygon points="0 0, 10 3.5, 0 7" fill="#000" />
-              </marker>
-            </defs>
-          </svg>
+                Src
+              </text>
+              <text
+                x="100"
+                y="120"
+                textAnchor="middle"
+                fontSize="13"
+                fill="#333"
+                fontWeight="500"
+              >
+                {entry.source}
+              </text>
+              <circle cx="300" cy="60" r="30" fill="#f44336" />
+              <text
+                x="300"
+                y="65"
+                textAnchor="middle"
+                fill="#fff"
+                fontSize="12"
+                fontWeight="bold"
+              >
+                Dst
+              </text>
+              <text
+                x="300"
+                y="120"
+                textAnchor="middle"
+                fontSize="13"
+                fill="#333"
+                fontWeight="500"
+              >
+                {entry.destination}
+              </text>
+              <line
+                x1="130"
+                y1="60"
+                x2="270"
+                y2="60"
+                stroke="#000"
+                strokeWidth="2"
+                markerEnd="url(#arrowhead)"
+              />
+            </svg>
+          </div>
         );
       }
       return null;
-    };
+    };    
+
+    const renderChosenNode = () => {
+      if (
+        entry.event === "chosen_node" &&
+        entry.coordinate
+      ) {
+        const nodeStr = entry.coordinate.toString();
+    
+        return (
+          <div style={{ marginTop: "2rem", textAlign: "center" }}>
+            <h4>Chosen Node</h4>
+            <svg width="100%" height="150" viewBox="0 0 400 150">
+              <g>
+                <circle cx={200} cy={50} r="30" fill="#ef5350" />
+                <text
+                  x={200}
+                  y={55}
+                  textAnchor="middle"
+                  fill="#fff"
+                  fontSize="12"
+                  fontWeight="bold"
+                >
+                  Chosen
+                </text>
+                <text
+                  x={200}
+                  y={110}
+                  textAnchor="middle"
+                  fontSize="14"
+                  fill="#333"
+                  fontWeight="500"
+                >
+                  {nodeStr}
+                </text>
+              </g>
+            </svg>
+          </div>
+        );
+      }
+      return null;
+    };    
+
+    const renderNeighbourConnections = () => {
+      if (entry.event === "neighbours" && visited_set.length > 0 && entry.nodes) {
+        const [parentCoord] = visited_set[visited_set.length - 1];
+        const neighbors = entry.nodes;
+        const svgHeight = 280;
+        const nodeSpacing = 180;
+        const baseX = 100;
+        const totalWidth = baseX + nodeSpacing * (neighbors.length + 1);
+        return (
+          <div style={{ marginTop: "2rem", textAlign: "center" }}>
+            <h4>Neighbour Connections</h4>
+            <svg
+              width={totalWidth}
+              height={svgHeight}
+              viewBox={`0 0 ${totalWidth} ${svgHeight}`}
+              style={{ overflow: "visible" }}
+            >
+              <defs>
+                <marker
+                  id="arrowhead"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="10"
+                  refY="3.5"
+                  orient="auto"
+                  markerUnits="strokeWidth"
+                >
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+                </marker>
+              </defs>
+              <circle cx={baseX} cy={svgHeight / 2} r="30" fill="#1976d2" />
+              <text
+                x={baseX}
+                y={svgHeight / 2 + 5}
+                textAnchor="middle"
+                fill="#fff"
+                fontSize="14"
+                fontWeight="bold"
+              >
+                P
+              </text>
+              <text
+                x={baseX}
+                y={svgHeight / 2 + 55}
+                textAnchor="middle"
+                fontSize="13"
+                fill="#333"
+                fontWeight="500"
+              >
+                {parentCoord}
+              </text>
+              <text
+                x={baseX}
+                y={svgHeight / 2 - 40}
+                textAnchor="middle"
+                fontSize="12"
+                fill="#0d47a1"
+                fontWeight="bold"
+              >
+                Parent
+              </text>
+              {neighbors.map((neighborStr, i) => {
+                const label = String.fromCharCode(65 + i); 
+                const x = baseX + nodeSpacing * (i + 1);
+                const y = svgHeight / 2 + (i % 2 === 0 ? -50 : 50);
+                return (
+                  <g key={i}>
+                    <line
+                      x1={baseX + 30}
+                      y1={svgHeight / 2}
+                      x2={x - 30}
+                      y2={y}
+                      stroke="#333"
+                      strokeWidth="2"
+                      markerEnd="url(#arrowhead)"
+                    />
+                    <circle cx={x} cy={y} r="30" fill="#ff9800" />
+                    <text
+                      x={x}
+                      y={y + 5}
+                      textAnchor="middle"
+                      fill="#fff"
+                      fontSize="14"
+                      fontWeight="bold"
+                    >
+                      {label}
+                    </text>
+                    <text
+                      x={x}
+                      y={y + 50}
+                      textAnchor="middle"
+                      fontSize="13"
+                      fill="#333"
+                      fontWeight="500"
+                    >
+                      {neighborStr}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+        );
+      }
+      return null;
+    };    
+
+    const renderExploringNodes = () => {
+      if (
+        entry.event === "exploring_node" &&
+        (entry.nodes?.length > 0 || entry.data)
+      ) {
+        const node =
+          Array.isArray(entry.nodes) && entry.nodes.length > 0
+            ? entry.nodes[0]
+            : entry.data;
+        const nodeStr = node.toString();
+        return (
+          <div style={{ marginTop: "2rem", textAlign: "center" }}>
+            <h4>Exploring Node</h4>
+            <svg width="100%" height="150" viewBox="0 0 400 150">
+              <g>
+                <circle cx={200} cy={50} r="30" fill="#7e57c2" />
+                <text
+                  x={200}
+                  y={55}
+                  textAnchor="middle"
+                  fill="#fff"
+                  fontSize="12"
+                  fontWeight="bold"
+                >
+                  Exploring
+                </text>
+                <text
+                  x={200}
+                  y={110}
+                  textAnchor="middle"
+                  fontSize="14"
+                  fill="#333"
+                  fontWeight="500"
+                >
+                  {nodeStr}
+                </text>
+              </g>
+            </svg>
+          </div>
+        );
+      }
+      return null;
+    };    
+    
+    const renderProcessingNode = () => {
+      if (
+        entry.event === "processing_node" &&
+        entry.data
+      ) {
+        const nodeStr = entry.data.toString();
+        return (
+          <div style={{ marginTop: "2rem", textAlign: "center" }}>
+            <h4>Processing Node</h4>
+            <svg width="100%" height="150" viewBox="0 0 400 150">
+              <g>
+                <circle cx={200} cy={50} r="32" fill="#42a5f5" />
+                <text
+                  x={200}
+                  y={55}
+                  textAnchor="middle"
+                  fill="#fff"
+                  fontSize="12"
+                  fontWeight="bold"
+                >
+                  Processing
+                </text>
+                <text
+                  x={200}
+                  y={110}
+                  textAnchor="middle"
+                  fontSize="14"
+                  fill="#333"
+                  fontWeight="500"
+                >
+                  {nodeStr}
+                </text>
+              </g>
+            </svg>
+          </div>
+        );
+      }
+      return null;
+    };   
 
     return (
       <div style={{ marginTop: "2rem" }}>
-        {renderAddedNode()}
         {renderSrcDstGraph()}
+        {renderAddedNode()}
+        {renderChosenNode()}
+        {renderNeighbourConnections()}
+        {renderExploringNodes()}
+        {renderProcessingNode()}
 
         <div style={{ marginTop: "2rem" }}>
           <h4>Priority Queue</h4>
