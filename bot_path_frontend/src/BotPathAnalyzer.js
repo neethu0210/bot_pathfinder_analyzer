@@ -476,8 +476,299 @@ function App() {
         );
       }
       return null;
-    };   
+    };  
+    
+    const renderAnchorCoord = () => {
+      if (
+        entry.event === "conflict_check" &&
+        entry.type === "anchor_coord" &&
+        entry.span_coords
+      ) {
+        const radius = 30;
+        const spacing = 120;
+        const numCoords = entry.span_coords.length;
+        const totalWidth = spacing * (numCoords + 2); // some padding on the right
+        const startX = (totalWidth - spacing * (numCoords + 1)) / 2;
+        const anchorX = startX;
+    
+        return (
+          <div style={{ marginTop: "2rem", textAlign: "center" }}>
+            <h4>Conflict Check: Anchor Coordinate</h4>
+            <svg width="100%" height="350" viewBox={`0 0 ${totalWidth} 300`}>
+              <defs>
+                <marker
+                  id="arrowhead"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="10"
+                  refY="3.5"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#000" />
+                </marker>
+              </defs>
+    
+              {/* Anchor node */}
+              <circle cx={anchorX} cy={120} r={radius} fill="#4caf50" />
+              <text
+                x={anchorX}
+                y={120}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="#fff"
+                fontSize="14"
+                fontWeight="bold"
+              >
+                Anchor
+              </text>
+              <text
+                x={anchorX}
+                y={160}
+                textAnchor="middle"
+                fontSize="12"
+                fill="#333"
+                fontWeight="500"
+              >
+                {entry.anchor_coord}
+              </text>
+    
+              {/* Span nodes */}
+              {entry.span_coords.map((coord, index) => {
+                const x = anchorX + spacing * (index + 1);
+                return (
+                  <g key={index}>
+                    <line
+                      x1={x - spacing + radius + 10}
+                      y1={120}
+                      x2={x - radius - 10}
+                      y2={120}
+                      stroke="#000"
+                      strokeWidth="2"
+                      markerEnd="url(#arrowhead)"
+                    />
+                    <circle cx={x} cy={120} r={radius} fill="#ff9800" />
+                    <text
+                      x={x}
+                      y={120}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fill="#fff"
+                      fontSize="14"
+                      fontWeight="bold"
+                    >
+                      {String.fromCharCode(65 + index)}
+                    </text>
+                    <text
+                      x={x}
+                      y={160}
+                      textAnchor="middle"
+                      fontSize="12"
+                      fill="#333"
+                      fontWeight="500"
+                    >
+                      {coord}
+                    </text>
+                  </g>
+                );
+              })}
+    
+              {/* Reservation time in a new line below all nodes */}
+              {entry.res_start_time && entry.res_end_time && (
+                <text
+                  x={totalWidth / 2}
+                  y={240}
+                  textAnchor="middle"
+                  fontSize="14"
+                  fill="#ff5722"
+                  fontWeight="bold"
+                >
+                  Reservation Start Time : {entry.res_start_time},  Reservation End TIme : {entry.res_end_time}
+                </text>
+              )}
+            </svg>
+          </div>
+        );
+      }
+      return null;
+    };     
 
+    const renderIdlePlan = () => {
+      if (
+        entry.event === "conflict_check" &&
+        entry.type === "idle_plan" &&
+        entry.span_coordinate &&
+        entry.idle_data
+      ) {
+        const centerX = 250;
+        const centerY = 120;
+        const radius = 30;
+    
+        return (
+          <div style={{ marginTop: "2rem", textAlign: "center" }}>
+            <h4>Conflict Check: Idle Plan</h4>
+            <svg width="100%" height="300" viewBox="0 0 500 250">
+              <circle cx={centerX} cy={centerY} r={radius} fill="#2196f3" />
+              <text
+                x={centerX}
+                y={centerY}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="#fff"
+                fontSize="14"
+                fontWeight="bold"
+              >
+                Idle Plan
+              </text>
+              <text
+                x={centerX}
+                y={centerY + 40}
+                textAnchor="middle"
+                fontSize="12"
+                fill="#333"
+                fontWeight="500"
+              >
+                {entry.span_coordinate}
+              </text>
+    
+              <rect
+                x={centerX - 150}
+                y={centerY + 70}
+                width="300"
+                height="40"
+                rx="8"
+                ry="8"
+                fill="#f5f5f5"
+                stroke="#ccc"
+              />
+              <text
+                x={centerX}
+                y={centerY + 95}
+                textAnchor="middle"
+                fontSize="13"
+                fill="#333"
+                fontWeight="bold"
+              >
+                {entry.idle_data}
+              </text>
+            </svg>
+          </div>
+        );
+      }
+      return null;
+    };   
+    
+    const renderTimeConflict = () => {
+      if (
+        entry.event === "conflict_check" &&
+        entry.type === "time_conflict" &&
+        entry.coordinate
+      ) {
+        const centerX = 250;
+        const centerY = 120;
+        const radius = 30;
+    
+        return (
+          <div style={{ marginTop: "2rem", textAlign: "center" }}>
+            <h4>Conflict Check: Time Conflict</h4>
+            <svg width="100%" height="300" viewBox="0 0 500 250">
+              {/* Conflict node */}
+              <circle cx={centerX} cy={centerY} r={radius} fill="#e53935" />
+              <text
+                x={centerX}
+                y={centerY}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="#fff"
+                fontSize="9"
+                fontWeight="bold"
+              >
+                Time Conflict
+              </text>
+              <text
+                x={centerX}
+                y={centerY + 40}
+                textAnchor="middle"
+                fontSize="12"
+                fill="#333"
+                fontWeight="500"
+              >
+                {entry.coordinate}
+              </text>
+    
+              {/* No idle bots message */}
+              <text
+                x={centerX}
+                y={centerY + 75}
+                textAnchor="middle"
+                fontSize="13"
+                fill="#555"
+                fontWeight="bold"
+              >
+                No available idle bots to resolve conflict
+              </text>
+            </svg>
+          </div>
+        );
+      }
+      return null;
+    };    
+
+    const renderSummaryConflict = () => {
+      if (
+        entry.event === "conflict_check" &&
+        entry.type === "summary" &&
+        entry.coordinate
+      ) {
+        const centerX = 250;
+        const centerY = 120;
+        const radius = 30;
+    
+        return (
+          <div style={{ marginTop: "2rem", textAlign: "center" }}>
+            <h4>Conflict Check: Summary</h4>
+            <svg width="100%" height="300" viewBox="0 0 500 250">
+              {/* Summary node */}
+              <circle cx={centerX} cy={centerY} r={radius} fill="#2196f3" />
+              <text
+                x={centerX}
+                y={centerY}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="#fff"
+                fontSize="12"
+                fontWeight="bold"
+              >
+                Summary
+              </text>
+              <text
+                x={centerX}
+                y={centerY + 40}
+                textAnchor="middle"
+                fontSize="12"
+                fill="#333"
+                fontWeight="500"
+              >
+                {entry.coordinate}
+              </text>
+    
+              {/* No conflicts and no bot reservation message */}
+              <text
+                x={centerX}
+                y={centerY + 75}
+                textAnchor="middle"
+                fontSize="13"
+                fill="#555"
+                fontWeight="bold"
+              >
+                No Time Conflicts & No Bots Reserved
+              </text>
+            </svg>
+          </div>
+        );
+      }
+      return null;
+    };    
+    
     return (
       <div style={{ marginTop: "2rem" }}>
         {renderSrcDstGraph()}
@@ -486,6 +777,10 @@ function App() {
         {renderNeighbourConnections()}
         {renderExploringNodes()}
         {renderProcessingNode()}
+        {renderAnchorCoord()}
+        {renderIdlePlan()}
+        {renderTimeConflict()}
+        {renderSummaryConflict()}
 
         <div style={{ marginTop: "2rem" }}>
           <h4>Priority Queue</h4>
