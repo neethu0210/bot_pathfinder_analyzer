@@ -137,7 +137,8 @@ def parse_log(file_content):
     return log_entries
 
 def parse_list_of_curly_braces(raw_string):
-    return [f"{{{x}, {y}}}" for x, y in re.findall(r"\{(-?\d+),(-?\d+)\}", raw_string)]
+    pattern = r"\{\{(-?\d+),(-?\d+)\},(\w+)\}"
+    return [f"{{{{{x},{y}}}, {direction}}}" for x, y, direction in re.findall(pattern, raw_string)]
 
 def parse_list_of_strings(raw_string):
     return re.findall(r"\w+", raw_string)
